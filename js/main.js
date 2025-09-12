@@ -823,27 +823,48 @@ function initializeInteractiveElements() {
     const downloadBtn = document.getElementById('downloadBtn');
     if (downloadBtn) {
         downloadBtn.addEventListener('click', (e) => {
-            e.preventDefault();
+            // This still prevents the immediate default click action.
+            e.preventDefault(); 
             
-            // Simulate download process
-            const originalText = downloadBtn.querySelector('.btn-text').textContent;
             const btnText = downloadBtn.querySelector('.btn-text');
             const btnIcon = downloadBtn.querySelector('.btn-icon');
+            const originalText = btnText.textContent;
             
-            btnIcon.textContent = '⏳';
-            btnText.textContent = 'Preparing Download...';
+            // Don't run the animation again if it's already in progress.
+            if (downloadBtn.classList.contains('downloading')) {
+                return;
+            }
+            
+            downloadBtn.classList.add('downloading');
             downloadBtn.style.pointerEvents = 'none';
+            btnIcon.textContent = '⏳';
+            btnText.textContent = 'Preparing...';
             
             setTimeout(() => {
                 btnIcon.textContent = '✓';
                 btnText.textContent = 'Download Ready!';
                 
+                // --- THIS IS THE FIX ---
+                // Create a temporary link to trigger the actual download.
+                const fileUrl = downloadBtn.getAttribute('href');
+                const tempLink = document.createElement('a');
+                tempLink.href = fileUrl;
+                tempLink.setAttribute('download', 'extension.zip');
+                tempLink.style.display = 'none';
+                document.body.appendChild(tempLink);
+                tempLink.click(); // This starts the download.
+                document.body.removeChild(tempLink);
+                // --- END OF FIX ---
+
+                // Reset the button after a short delay.
                 setTimeout(() => {
                     btnIcon.textContent = '🚀';
                     btnText.textContent = originalText;
                     downloadBtn.style.pointerEvents = 'auto';
+                    downloadBtn.classList.remove('downloading');
                 }, 2000);
-            }, 2000);
+
+            }, 1500);
         });
     }
     
