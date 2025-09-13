@@ -1,5 +1,5 @@
 
-Skip to main content
+/* Skip to main content
 Keyboard shortcuts
 Accessibility feedback
 Drive
@@ -24,7 +24,7 @@ List highs and lows of each file
 
 Aditya
 3:45 AMAditya
-69 KB
+69 KB */
 /* Reset and Base Styles */
 * {
   margin: 0;
@@ -664,6 +664,13 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.section-title1 {
+  font-size: 3.2rem;
+  font-weight: 800;
+  margin-bottom: 24px;
   letter-spacing: -0.02em;
   line-height: 1.2;
 }

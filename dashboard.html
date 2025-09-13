@@ -1,611 +1,359 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Senova AI — Think Better With AI</title>
-
-<link rel="stylesheet" href="css/style.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<script defer src="js/main.js"></script>
-
-</head>
-
-<body>
-
-<!-- Animated Background Particles -->
-
-<div class="particles-container">
-
-<canvas id="particles"></canvas>
-
-</div>
-
-
-
-<!-- Navigation -->
-
-<header>
-
-<nav class="navbar glass-effect">
-
-<div class="nav-brand">
-
-<img src="assets/logo.png" alt="Senova AI Logo" class="logo">
-
-<span class="brand-text">Senova AI</span>
-
-</div>
-
-<ul class="nav-menu">
-
-<li><a href="dashboard.html" class="nav-link">Your Analysis</a></li>
-
-<li><a href="#features" class="nav-link">Features</a></li>
-
-<li><a href="contact.html" class="nav-link">Contact</a></li>
-
-</ul>
-
-<div class="hamburger">
-
-<span></span>
-
-<span></span>
-
-<span></span>
-
-</div>
-
-</nav>
-
-</header>
-
-
-
-<!-- Hero Section -->
-
-<section class="hero">
-
-<div class="hero-content">
-
-<div class="hero-text">
-
-<div class="typing-container">
-
-<h1>Reduce <span class="highlight" id="typewriter">cognitive debt</span>, not thinking</h1>
-
-</div>
-
-<p class="hero-description fade-in">Senova AI helps learners and students use LLMs without over‑relying on them. We add cognitive friction, active retrieval, and wellness guardrails so your memory, creativity, and critical thinking get stronger—not outsourced.</p>
-
-<div class="hero-buttons fade-in">
-
-  <a href="extension.zip" download="extension.zip" class="btn primary-btn pulse-animation" id="downloadBtn">
-    <span class="btn-icon">🚀</span>
-    <span class="btn-text">Download Extension</span>
-    <div class="btn-ripple"></div>
-  </a>
-
-<a href="#features" class="btn secondary-btn">
-
-<span class="btn-text">Learn More</span>
-
-</a>
-
-</div>
-
-<div class="stats-bar fade-in">
-
-<div class="stat">
-
-<span class="stat-number" data-target="10+">0</span>
-
-<span class="stat-label">Early Adapters</span>
-
-</div>
-
-<div class="stat">
-
-<span class="stat-number" data-target="500+">0</span>
-
-<span class="stat-label">Chats Analyzed</span>
-
-</div>
-
-<div class="stat">
-
-<span class="stat-number" data-target="99">0</span>
-
-<span class="stat-label">% Accuracy</span>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="hero-visual">
-
-<div class="dashboard-mockup">
-
-<div class="mockup-header">
-
-<div class="mockup-controls">
-
-<span class="control red"></span>
-
-<span class="control yellow"></span>
-
-<span class="control green"></span>
-
-</div>
-
-<span class="mockup-title">Senova AI Dashboard</span>
-
-</div>
-
-<div class="mockup-content">
-
-<div class="chart-container">
-
-<canvas id="heroChart"></canvas>
-
-</div>
-
-<div class="mockup-stats">
-
-<div class="mock-stat positive">
-
-<span class="mock-icon">😊</span>
-
-<span class="mock-value">85%</span>
-
-<span class="mock-label">Positive</span>
-
-</div>
-
-<div class="mock-stat neutral">
-
-<span class="mock-icon">😐</span>
-
-<span class="mock-value">12%</span>
-
-<span class="mock-label">Neutral</span>
-
-</div>
-
-<div class="mock-stat negative">
-
-<span class="mock-icon">😔</span>
-
-<span class="mock-value">3%</span>
-
-<span class="mock-label">Negative</span>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="floating-elements">
-
-<div class="float-element" style="--delay: 0s;">💬</div>
-
-<div class="float-element" style="--delay: 1s;">📊</div>
-
-<div class="float-element" style="--delay: 2s;">🔔</div>
-
-<div class="float-element" style="--delay: 3s;">⚡</div>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-
-
-<!-- Features Section -->
-
-<section class="features" id="features">
-
-<div class="section-header">
-
-<h2 class="section-title">Built to protect your thinking</h2>
-
-<p class="section-subtitle">Counter cognitive offloading with features grounded in neuroscience</p>
-
-</div>
-
-<div class="feature-grid">
-
-<div class="feature-card" data-tilt>
-
-<div class="feature-icon">
-
-<div class="icon-wrapper">🧠</div>
-
-</div>
-
-<h3>Cognitive Friction</h3>
-
-<p>Explain‑before‑reveal prompts and source verification nudges ensure you think first, then check AI—reducing passive copy‑paste usage.</p>
-
-<div class="feature-demo">
-
-<div class="demo-notification">
-
-<span class="notification-icon">🧩</span>
-
-<span class="notification-text">Explain your reasoning before viewing AI output</span>
-
-</div>
-
-</div>
-
-</div>
-
-
-<div class="feature-card" data-tilt>
-
-<div class="feature-icon">
-
-<div class="icon-wrapper">🎯</div>
-
-</div>
-
-<h3>Active Retrieval</h3>
-
-<p>Short, structured recall prompts and synthesis tasks (the Cognitive Gym) strengthen memory encoding and critical thinking during real work.</p>
-
-<div class="feature-demo">
-
-<div class="demo-chart">
-
-<div class="chart-bar" style="height: 70%"></div>
-
-<div class="chart-bar" style="height: 45%"></div>
-
-<div class="chart-bar" style="height: 90%"></div>
-
-<div class="chart-bar" style="height: 60%"></div>
-
-</div>
-
-</div>
-
-</div>
-
-
-<div class="feature-card" data-tilt>
-
-<div class="feature-icon">
-
-<div class="icon-wrapper">💚</div>
-
-</div>
-
-<h3>Wellness Safeguards</h3>
-
-<p>On‑device, privacy‑first monitoring with mood check‑ins and overload prevention—supporting sustained mental health while learning.</p>
-
-<div class="feature-demo">
-
-<div class="demo-browser">
-
-<div class="browser-notification">
-
-<span class="notif-icon">💡</span>
-
-<span class="notif-text">Try a 60‑second recall before asking for the answer</span>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-
-
-
-
-<!-- Interactive Demo Section -->
-
-<section class="demo-section">
-
-<div class="demo-container">
-
-<h2>Try It Live</h2>
-
-<div class="chat-demo">
-
-<div class="chat-window">
-
-<div class="chat-header">
-
-<span class="chat-title">AI Chat Demo</span>
-
-<div class="chat-status online">
-
-<span class="status-dot"></span>
-
-<span>Online</span>
-
-</div>
-
-</div>
-
-<div class="chat-messages" id="chatMessages">
-
-<div class="message ai-message">
-
-<div class="message-avatar">🤖</div>
-
-<div class="message-content">
-
-<p>Hello! How are you feeling today?</p>
-
-<span class="message-time">10:30 AM</span>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="chat-input-container">
-
-<input type="text" class="chat-input" placeholder="Type your message..." id="chatInput">
-
-<button class="send-btn" id="sendBtn">
-
-<span>➤</span>
-
-</button>
-
-</div>
-
-</div>
-
-<div class="analysis-panel">
-
-<h3>Live Analysis</h3>
-
-<div class="analysis-metrics">
-
-<div class="metric">
-
-<span class="metric-label">Sentiment</span>
-
-<div class="sentiment-indicator">
-
-<div class="sentiment-bar" id="sentimentBar"></div>
-
-</div>
-
-<span class="sentiment-text" id="sentimentText">Neutral</span>
-
-</div>
-
-<div class="metric">
-
-<span class="metric-label">Engagement</span>
-
-<div class="progress-ring" id="engagementRing">
-
-<svg width="60" height="60">
-
-<circle cx="30" cy="30" r="25" class="progress-ring-bg"></circle>
-
-<circle cx="30" cy="30" r="25" class="progress-ring-fill" id="engagementCircle"></circle>
-
-</svg>
-
-<span class="progress-text" id="engagementText">0%</span>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-
-
-<!-- Testimonials -->
-
-<section class="testimonials">
-
-<h2>What Users Say</h2>
-
-<div class="testimonial-slider">
-
-<div class="testimonial active">
-
-<div class="testimonial-content">
-
-<p>"Senova AI has completely transformed how I interact with AI. The insights are incredible!"</p>
-
-<div class="testimonial-author">
-
-<div class="author-avatar">👨‍💻</div>
-
-<div class="author-info">
-
-<span class="author-name">Alex Chen</span>
-
-<span class="author-title">Software Developer</span>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="testimonial">
-
-<div class="testimonial-content">
-
-<p>"The real-time analysis helps me maintain better mental health awareness during AI conversations."</p>
-
-<div class="testimonial-author">
-
-<div class="author-avatar">👩‍🔬</div>
-
-<div class="author-info">
-
-<span class="author-name">Dr. Sarah Johnson</span>
-
-<span class="author-title">Researcher</span>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="testimonial">
-
-<div class="testimonial-content">
-
-<p>"Amazing extension! The sentiment analysis is spot-on and has improved my AI interactions significantly."</p>
-
-<div class="testimonial-author">
-
-<div class="author-avatar">👨‍🎨</div>
-
-<div class="author-info">
-
-<span class="author-name">Mike Rodriguez</span>
-
-<span class="author-title">Creative Director</span>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="testimonial-dots">
-
-<span class="dot active" data-slide="0"></span>
-
-<span class="dot" data-slide="1"></span>
-
-<span class="dot" data-slide="2"></span>
-
-</div>
-
-</section>
-
-
-
-<!-- Contact Footer -->
-
-<footer id="contact" class="footer">
-
-<div class="footer-content">
-
-<div class="footer-section">
-
-<div class="footer-brand">
-
-<img src="assets/logo.png" alt="Senova AI Logo" class="footer-logo">
-
-<h3>Senova AI</h3>
-
-</div>
-
-<p>Enhancing AI conversations with intelligent analysis and real-time insights.</p>
-
-<div class="social-links">
-
-<a href="#" class="social-link">📧</a>
-
-<a href="#" class="social-link">📱</a>
-
-<a href="#" class="social-link">🐦</a>
-
-</div>
-
-</div>
-
-<div class="footer-section">
-
-<h4>Quick Links</h4>
-
-<ul>
-
-<li><a href="dashboard.html">Dashboard</a></li>
-
-<li><a href="#features">Features</a></li>
-
-<li><a href="#contact">Contact</a></li>
-
-</ul>
-
-</div>
-
-<div class="footer-section">
-
-<h4>Contact Info</h4>
-
-<p>📧 support@senovaai.com</p>
-
-<p>🌐 www.senova.in</p>
-
-</div>
-
-</div>
-
-<div class="footer-bottom">
-
-<p>© 2025 Senova AI. All rights reserved.</p>
-
-</div>
-
-</footer>
-
-
-
-<!-- Chart.js for hero mockup -->
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Senova AI — Extension Analytics Dashboard</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script defer src="js/main.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+
+  <body class="bg-gray-50 font-poppins min-h-screen">
+    <!-- Animated Background Particles -->
+    <div class="particles-container">
+      <canvas id="particles"></canvas>
+    </div>
+
+    <!-- Navigation -->
+    <header>
+      <nav class="navbar glass-effect">
+        <a href="index.html">
+          <div class="nav-brand">
+            <img src="assets/logo.png" alt="Senova AI Logo" class="logo" />
+            <span class="brand-text">Senova AI</span>
+          </div>
+        </a>
+        <ul class="nav-menu">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="dashboard.html" class="nav-link active">Your Analysis</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </header>
+    <section class=" min-h-screen">
+      <main class="max-w-4xl mx-auto px-4 py-10">
+        <!-- Header -->
+        <header class="mb-10 text-center">
+          <h1 class=" flex items-center justify-center gap-2">
+            <span class="section-title1">📊</span> <span class="section-title">User Dashboard</span>
+          </h1>
+        </header>
+
+        <!-- Loading/Error -->
+        <div id="status-message" class="mb-8 flex justify-center"></div>
+
+        <!-- Stat Cards -->
+        <section id="stats-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <!-- Cards will be populated by JS -->
+        </section>
+
+        <!-- Risk Level Distribution -->
+        <section class="mb-10">
+          <h2 class="text-lg font-semibold text-gray-400 mb-4">Risk Level Distribution</h2>
+          <ul id="risk-list" class="bg-white rounded-xl shadow p-4 flex flex-col gap-3">
+            <!-- Populated by JS -->
+          </ul>
+        </section>
+
+        <!-- Message Type Distribution -->
+        <section class="mb-10">
+          <h2 class="text-lg font-semibold text-gray-400 mb-4">Message Type Distribution</h2>
+          <div id="msgtype-bars" class="bg-white rounded-xl shadow p-4 flex flex-col gap-5">
+            <!-- Populated by JS -->
+          </div>
+        </section>
+
+        <!-- Intervention Counts -->
+        <section>
+          <h2 class="text-lg font-semibold text-gray-400 mb-4">Intervention Counts</h2>
+          <ul id="intervention-list" class="bg-white rounded-xl shadow p-4 flex flex-col gap-3">
+            <!-- Populated by JS -->
+          </ul>
+        </section>
+      </main>
+
+      <script>
+        const statusMessage = document.getElementById('status-message');
+        const statsCards = document.getElementById('stats-cards');
+        const riskList = document.getElementById('risk-list');
+        const msgtypeBars = document.getElementById('msgtype-bars');
+        const interventionList = document.getElementById('intervention-list');
+
+        function showLoading() {
+          statusMessage.innerHTML = '<span class="text-gray-500 text-lg font-medium">Loading...</span>';
+        }
+        function showError() {
+          statusMessage.innerHTML = '<div class="bg-red-100 text-red-700 px-4 py-2 rounded shadow font-semibold">Failed to load stats</div>';
+        }
+        function clearStatus() {
+          statusMessage.innerHTML = '';
+        }
+
+        function renderStatCards(data) {
+          statsCards.innerHTML = `
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+              <div class="bg-blue-100 text-blue-600 rounded-full p-3 mb-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 17l4 4 4-4m0-5V3m-8 9a9 9 0 1118 0 9 9 0 01-18 0z"/>
+                </svg>
+              </div>
+              <span class="text-gray-500 text-xs mb-1">Total Sessions</span>
+              <span class="text-2xl font-bold text-blue-700">${data.total_sessions}</span>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+              <div class="bg-green-100 text-green-600 rounded-full p-3 mb-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01"/>
+                </svg>
+              </div>
+              <span class="text-gray-500 text-xs mb-1">Total Messages</span>
+              <span class="text-2xl font-bold text-green-700">${data.total_messages}</span>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+              <div class="bg-yellow-100 text-yellow-600 rounded-full p-3 mb-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01"/>
+                </svg>
+              </div>
+              <span class="text-gray-500 text-xs mb-1">LangChain</span>
+              <span class="text-2xl font-bold">
+                ${data.langchain_enabled ? '<span class="text-green-600">✅ Enabled</span>' : '<span class="text-red-600">❌ Disabled</span>'}
+              </span>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+              <div class="bg-purple-100 text-purple-600 rounded-full p-3 mb-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"/>
+                </svg>
+              </div>
+              <span class="text-gray-500 text-xs mb-1">Uptime</span>
+              <span class="text-2xl font-bold text-purple-700">${data.uptime}</span>
+            </div>
+          `;
+        }
+
+        function renderRiskLevels(risk) {
+          // Calculate total for percentages
+          const total = Object.values(risk).reduce((a, b) => a + b, 0) || 1;
+          const riskColors = {
+            low: 'bg-green-100 text-green-700',
+            medium: 'bg-yellow-100 text-yellow-700',
+            high: 'bg-red-100 text-red-700'
+          };
+          riskList.innerHTML = '';
+          ['low', 'medium', 'high'].forEach(level => {
+            const count = risk[level] || 0;
+            const percent = Math.round((count / total) * 100);
+            riskList.innerHTML += `
+              <li class="flex items-center justify-between">
+                <span class="capitalize font-medium">${level}</span>
+                <span class="ml-2 px-3 py-1 rounded-full text-xs font-semibold ${riskColors[level]}">
+                  ${count} (${percent}%)
+                </span>
+              </li>
+            `;
+          });
+        }
+
+        function renderMsgTypeBars(types) {
+          // Calculate total for percentages
+          const total = Object.values(types).reduce((a, b) => a + b, 0) || 1;
+          const typeColors = {
+            academic: 'bg-blue-500',
+            emotional: 'bg-pink-500',
+            general: 'bg-gray-500'
+          };
+          msgtypeBars.innerHTML = '';
+          ['academic', 'emotional', 'general'].forEach(type => {
+            const count = types[type] || 0;
+            const percent = Math.round((count / total) * 100);
+            msgtypeBars.innerHTML += `
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="capitalize text-sm font-medium text-gray-700">${type}</span>
+                  <span class="text-xs text-gray-500">${count} (${percent}%)</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                  <div class="${typeColors[type]} h-3 rounded-full" style="width: ${percent}%;"></div>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        function renderInterventions(interventions) {
+          interventionList.innerHTML = '';
+          const keys = Object.keys(interventions);
+          if (keys.length === 0) {
+            interventionList.innerHTML = '<li class="text-gray-500">No interventions recorded.</li>';
+            return;
+          }
+          keys.forEach(name => {
+            interventionList.innerHTML += `
+              <li class="flex items-center justify-between">
+                <span class="capitalize font-medium">${name}</span>
+                <span class="ml-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">${interventions[name]}</span>
+              </li>
+            `;
+          });
+        }
+
+        async function fetchStats() {
+          showLoading();
+          try {
+            const res = await fetch('http://localhost:8000/api/stats/');
+            if (!res.ok) throw new Error('Failed to fetch stats');
+            const data = await res.json();
+            clearStatus();
+            renderStatCards(data);
+            renderRiskLevels(data.risk_level_distribution || {});
+            renderMsgTypeBars(data.message_type_distribution || {});
+            renderInterventions(data.intervention_counts || {});
+          } catch (e) {
+            showError();
+          }
+        }
+
+        fetchStats();
+      </script>
+    </section>
+    <!-- Contact Footer -->
+    <footer id="contact" class="footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <div class="footer-brand">
+            <img
+              src="assets/logo.png"
+              alt="Senova AI Logo"
+              class="footer-logo"
+            />
+            <h3>Senova AI</h3>
+          </div>
+          <p>
+            Revolutionizing AI-human interaction with cognitive intelligence and
+            wellness-focused technology.
+          </p>
+          <div class="social-links">
+            <a href="#" class="social-link">📧</a>
+            <a href="#" class="social-link">📱</a>
+            <a href="#" class="social-link">🐦</a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="dashboard.html">Your Analysis</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Contact Info</h4>
+          <p>📧 support@senovaai.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Senova AI. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <!-- Dashboard Chart Scripts -->
+    <script>
+      // Example data for demonstration
+      const sentimentData = {
+        labels: ["Jun 6", "Jun 7", "Jun 8", "Jun 9", "Jun 10"],
+        datasets: [
+          {
+            label: "Avg Sentiment",
+            data: [0.6, 0.7, 0.8, 0.75, 0.78],
+            borderColor: "#4caf50",
+            backgroundColor: "rgba(76,175,80,0.1)",
+            fill: true,
+            tension: 0.4,
+          },
+        ],
+      };
+      const engagementData = {
+        labels: ["Jun 6", "Jun 7", "Jun 8", "Jun 9", "Jun 10"],
+        datasets: [
+          {
+            label: "Engagement (%)",
+            data: [65, 70, 80, 75, 82],
+            backgroundColor: "#2196f3",
+          },
+        ],
+      };
+      const recallData = {
+        labels: ["Completed", "Skipped"],
+        datasets: [
+          {
+            label: "Recall Prompts",
+            data: [134, 28],
+            backgroundColor: ["#8bc34a", "#f44336"],
+          },
+        ],
+      };
+
+      window.addEventListener("DOMContentLoaded", () => {
+        // Sentiment Chart
+        new Chart(document.getElementById("sentimentChart"), {
+          type: "line",
+          data: sentimentData,
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: {
+                min: 0,
+                max: 1,
+                title: { display: true, text: "Sentiment Score" },
+              },
+            },
+          },
+        });
+        // Engagement Chart
+        new Chart(document.getElementById("engagementChart"), {
+          type: "bar",
+          data: engagementData,
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: {
+                min: 0,
+                max: 100,
+                title: { display: true, text: "Engagement (%)" },
+              },
+            },
+          },
+        });
+        // Recall Chart
+        new Chart(document.getElementById("recallChart"), {
+          type: "doughnut",
+          data: recallData,
+          options: {
+            responsive: true,
+            plugins: { legend: { position: "bottom" } },
+          },
+        });
+      });
+    </script>
+  </body>
 </html>

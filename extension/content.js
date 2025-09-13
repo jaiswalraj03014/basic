@@ -383,7 +383,7 @@ function injectSenovaWidget() {
         });
   
         const games = [
-            { id: 'memory', title: '🧩 Memory Match', desc: 'Improve working memory and concentration.', color: '#e0f2fe', accent: '#0891b2', url: 'https://www.google.com/search?q=memory+game' },
+            { id: 'memory', title: '🧩 Memory Match', desc: 'Improve working memory and concentration.', color: '#e0f2fe', accent: '#0891b2', url: '/games/Breathing_Maze/static/index.html' },
             { id: 'focus', title: '🎯 Focus Target', desc: 'Practice sustained attention and mindfulness.', color: '#fef3c7', accent: '#f59e0b', url: 'https://www.google.com/search?q=focus+game' },
             { id: 'garden', title: '🌱 Calm Garden', desc: 'A relaxing cultivation game for stress relief.', color: '#f0fdf4', accent: '#22c55e', url: 'https://www.google.com/search?q=calm+garden+game' }
         ];
@@ -397,7 +397,7 @@ function injectSenovaWidget() {
   
         mainContent.querySelector("#senova-games").addEventListener("click", () => {
           const gameSelectionHTML = games.map(game => `
-            <div class="senova-action-card game-choice" data-game-id="${game.id}" style="border-color:${game.accent};">
+            <a href="${game.url}" target="_blank"><div class="senova-action-card game-choice" data-game-id="${game.id}" style="border-color:${game.accent};">
               <div style="background:${game.color};width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:1.35em;">${game.title.split(' ')[0]}</div>
               <div>
                 <div style="font-weight:600;color:#222;">${game.title.substring(game.title.indexOf(' ') + 1)}</div>
@@ -405,6 +405,7 @@ function injectSenovaWidget() {
               </div>
               <div style="color:#b8b8b8;font-size:1.3em;">&#8250;</div>
             </div>
+            </a>
           `).join('');
           showDynamicContent(`<div style="display:flex;flex-direction:column;gap:12px;">${gameSelectionHTML}</div>`, { title: "Choose a Game" });
   

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Grid - Cognitive Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            background: linear-gradient(45deg, #00d4ff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+            max-width: 600px;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0,212,255,0.3);
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 30px auto;
+            max-width: 300px;
+            aspect-ratio: 1;
+        }
+
+        .grid-cell {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .grid-cell:hover::before {
+            opacity: 1;
+        }
+
+        .grid-cell.active {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border-color: #00d4ff;
+            box-shadow: 0 0 25px rgba(0,212,255,0.5);
+            transform: scale(1.05);
+        }
+
+        .grid-cell.sequence-play {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            border-color: #ff6b6b;
+            box-shadow: 0 0 25px rgba(255,107,107,0.5);
+            animation: pulse 0.6s ease;
+        }
+
+        .grid-cell.correct {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border-color: #4ecdc4;
+            animation: success 0.5s ease;
+        }
+
+        .grid-cell.incorrect {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            border-color: #e74c3c;
+            animation: error 0.5s ease;
+        }
+
+        .grid-cell.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        @keyframes success {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); background: #4ecdc4; }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes error {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-display {
+            text-align: center;
+            margin: 20px 0;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .status-text {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status-subtext {
+            font-size: 1em;
+            opacity: 0.8;
+        }
+
+        .progress-ring {
+            width: 60px;
+            height: 60px;
+            margin: 15px auto;
+            position: relative;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke: rgba(255,255,255,0.2);
+            stroke-width: 4;
+        }
+
+        .progress-ring-fill {
+            fill: none;
+            stroke: #00d4ff;
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.3s ease;
+            filter: drop-shadow(0 0 3px rgba(0,212,255,0.3));
+        }
+
+        .difficulty-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .difficulty-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-dot.active {
+            background: #00d4ff;
+            box-shadow: 0 0 10px rgba(0,212,255,0.5);
+        }
+
+        .feedback-panel {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .feedback-text {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .cognitive-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .benefit-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .game-container {
+                padding: 25px;
+            }
+            
+            .memory-grid {
+                max-width: 250px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        .sound-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle" onclick="toggleSound()" id="soundToggle">🔊</button>
+    
+    <div class="header">
+        <h1>🧠 Memory Grid</h1>
+        <p>Strengthen your working memory and focus through adaptive sequence training. Watch the pattern, then repeat it back!</p>
+    </div>
+
+    <div class="game-container">
+        <div class="game-stats">
+            <div class="stat-item">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="currentLevel">1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Accuracy</div>
+                <div class="stat-value" id="accuracy">100%</div>
+            </div>
+        </div>
+
+        <div class="difficulty-indicator" id="difficultyIndicator">
+            <!-- Difficulty dots will be generated here -->
+        </div>
+
+        <div class="status-display">
+            <div class="status-text" id="statusText">Ready to train your memory?</div>
+            <div class="status-subtext" id="statusSubtext">Click Start to begin your cognitive workout</div>
+            <div class="progress-ring" id="progressRing" style="display: none;">
+                <svg width="60" height="60">
+                    <circle class="progress-ring-circle" cx="30" cy="30" r="26"></circle>
+                    <circle class="progress-ring-fill" cx="30" cy="30" r="26" 
+                            stroke-dasharray="163.36" stroke-dashoffset="163.36" id="progressCircle"></circle>
+                </svg>
+            </div>
+        </div>
+
+        <div class="memory-grid" id="memoryGrid">
+            <!-- Grid cells will be generated here -->
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn" onclick="startTraining()">Start Training</button>
+            <button class="btn btn-secondary" id="replayBtn" onclick="replaySequence()" disabled>Replay</button>
+            <button class="btn btn-secondary" onclick="resetTraining()">Reset</button>
+        </div>
+
+        <div class="feedback-panel" id="feedbackPanel" style="display: none;">
+            <div class="feedback-text" id="feedbackText"></div>
+            <div class="cognitive-benefits">
+                <div class="benefit-item">🎯 Enhanced Focus</div>
+                <div class="benefit-item">🧠 Working Memory</div>
+                <div class="benefit-item">⚡ Quick Thinking</div>
+                <div class="benefit-item">🔄 Reduced Rumination</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MemoryGridGame {
+            constructor() {
+                this.level = 1;
+                this.score = 0;
+                this.streak = 0;
+                this.totalAttempts = 0;
+                this.correctSequences = 0;
+                this.currentSequence = [];
+                this.playerSequence = [];
+                this.reactionTimes = [];
+                this.sequenceStartTime = 0;
+                this.isPlaying = false;
+                this.isShowingSequence = false;
+                this.soundEnabled = true;
+                this.audioContext = null;
+                this.sessionId = null;
+                
+                this.initializeGrid();
+                this.updateDisplay();
+                this.updateDifficultyIndicator();
+                this.initializeAudio();
+            }
+
+            initializeAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn('Audio context not available');
+                    this.soundEnabled = false;
+                }
+            }
+
+            playTone(frequency = 440, duration = 200) {
+                if (!this.soundEnabled || !this.audioContext) return;
+                
+                try {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration / 1000);
+                    
+                    oscillator.start();
+                    oscillator.stop(this.audioContext.currentTime + duration / 1000);
+                } catch (e) {
+                    console.warn('Audio playback failed');
+                }
+            }
+
+            initializeGrid() {
+                const grid = document.getElementById('memoryGrid');
+                grid.innerHTML = '';
+                
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.index = i;
+                    cell.addEventListener('click', () => this.handleCellClick(i));
+                    grid.appendChild(cell);
+                }
+            }
+
+            updateDifficultyIndicator() {
+                const indicator = document.getElementById('difficultyIndicator');
+                indicator.innerHTML = '';
+                
+                for (let i = 1; i <= 10; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'difficulty-dot';
+                    if (i <= this.level) dot.classList.add('active');
+                    indicator.appendChild(dot);
+                }
+            }
+
+            async startTraining() {
+                if (this.isPlaying) return;
+                
+                this.isPlaying = true;
+                this.playerSequence = [];
+                this.reactionTimes = [];
+                
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('replayBtn').disabled = true;
+                
+                await this.generateNewSequence();
+                this.showSequence();
+            }
+
+            async generateNewSequence() {
+                try {
+                    const response = await fetch(`/api/sequence/${this.level + 1}`);
+                    const data = await response.json();
+                    this.currentSequence = data.sequence;
+                    this.sessionId = data.session_id;
+                } catch (error) {
+                    console.error('Failed to generate sequence:', error);
+                    // Fallback to local generation
+                    this.currentSequence = Array.from({length: this.level + 1}, 
+                        () => Math.floor(Math.random() * 9));
+                }
+                
+                this.updateStatus('Watch carefully!', `Memorize this ${this.currentSequence.length}-step sequence`);
+            }
+
+            async showSequence() {
+                this.isShowingSequence = true;
+                this.disableGrid();
+                
+                const delay = Math.max(400, 800 - (this.level * 50)); // Adaptive timing
+                
+                for (let i = 0; i < this.currentSequence.length; i++) {
+                    await this.wait(delay);
+                    this.highlightCell(this.currentSequence[i], true);
+                    
+                    // Play unique tone for each position
+                    const frequency = 200 + (this.currentSequence[i] * 50);
+                    this.playTone(frequency, 300);
+                    
+                    await this.wait(600);
+                    this.highlightCell(this.currentSequence[i], false);
+                }
+                
+                await this.wait(500);
+                this.startPlayerInput();
+            }
+
+            startPlayerInput() {
+                this.isShowingSequence = false;
+                this.enableGrid();
+                this.sequenceStartTime = performance.now();
+                
+                this.updateStatus('Your turn!', `Repeat the ${this.currentSequence.length}-step sequence`);
+                this.showProgressRing();
+                document.getElementById('replayBtn').disabled = false;
+            }
+
+            handleCellClick(index) {
+                if (!this.isPlaying || this.isShowingSequence) return;
+                
+                const reactionTime = performance.now() - this.sequenceStartTime;
+                this.reactionTimes.push(reactionTime);
+                this.sequenceStartTime = performance.now(); // Reset for next click
+                
+                this.playerSequence.push(index);
+                this.highlightCell(index, true, 'active');
+                
+                setTimeout(() => this.highlightCell(index, false), 200);
+                
+                // Play feedback tone
+                this.playTone(300 + (index * 40), 150);
+                
+                this.updateProgressRing();
+                
+                // Check if sequence is complete
+                if (this.playerSequence.length >= this.currentSequence.length) {
+                    setTimeout(() => this.checkSequence(), 300);
+                }
+            }
+
+            async checkSequence() {
+                this.totalAttempts++;
+                const isCorrect = this.arraysEqual(this.playerSequence, this.currentSequence);
+                
+                this.hideProgressRing();
+                
+                if (isCorrect) {
+                    this.handleCorrectSequence();
+                } else {
+                    this.handleIncorrectSequence();
+                }
+                
+                // Send results to server
+                await this.submitResults();
+                
+                // Reset for next round
+                setTimeout(() => this.prepareNextRound(), 2000);
+            }
+
+            handleCorrectSequence() {
+                this.correctSequences++;
+                this.streak++;
+                this.score += (this.level + 1) * 10 * (this.streak > 3 ? 2 : 1); // Streak bonus
+                
+                this.playTone(523, 200); // Success tone (C5)
+                setTimeout(() => this.playTone(659, 200), 100); // (E5)
+                
+                this.updateStatus('Perfect! 🎉', 'Your working memory is strengthening');
+                this.showFeedback('Excellent recall! Your cognitive focus is improving.');
+                
+                // Highlight correct path
+                this.currentSequence.forEach((cellIndex, i) => {
+                    setTimeout(() => {
+                        this.highlightCell(cellIndex, true, 'correct');
+                        setTimeout(() => this.highlightCell(cellIndex, false), 300);
+                    }, i * 100);
+                });
+            }
+
+            handleIncorrectSequence() {
+                this.streak = 0;
+                
+                this.playTone(208, 400); // Error tone
+                
+                this.updateStatus('Not quite right', 'Focus and try again - every attempt builds strength');
+                this.showFeedback('Good effort! Memory training takes practice and builds resilience.');
+                
+                // Show correct sequence
+                this.currentSequence.forEach((cellIndex, i) => {
+                    setTimeout(() => {
+                        this.highlightCell(cellIndex, true, 'correct');
+                        setTimeout(() => this.highlightCell(cellIndex, false), 400);
+                    }, i * 150);
+                });
+                
+                // Show player errors
+                this.playerSequence.forEach((cellIndex, i) => {
+                    if (cellIndex !== this.currentSequence[i]) {
+                        setTimeout(() => {
+                            this.highlightCell(cellIndex, true, 'incorrect');
+                            setTimeout(() => this.highlightCell(cellIndex, false), 400);
+                        }, i * 150);
+                    }
+                });
+            }
+
+            async submitResults() {
+                try {
+                    const response = await fetch('/api/validate-sequence', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            player_sequence: this.playerSequence,
+                            reaction_times: this.reactionTimes,
+                            session_id: this.sessionId
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    console.log('Performance metrics:', result);
+                    
+                } catch (error) {
+                    console.error('Failed to submit results:', error);
+                }
+            }
+
+            async prepareNextRound() {
+                // Adaptive difficulty adjustment
+                const successRate = this.correctSequences / this.totalAttempts;
+                
+                try {
+                    const response = await fetch(`/api/difficulty-adjustment/${this.level}/${successRate}`);
+                    const adjustment = await response.json();
+                    
+                    if (adjustment.new_level !== this.level) {
+                        this.level = adjustment.new_level;
+                        this.updateStatus('Level Adjustment', adjustment.message);
+                        await this.wait(1500);
+                    }
+                } catch (error) {
+                    // Fallback local adjustment
+                    if (successRate >= 0.8 && this.level < 10) {
+                        this.level++;
+                        this.updateStatus('Level Up!', 'Increasing difficulty - you\'re doing great!');
+                        await this.wait(1500);
+                    } else if (successRate <= 0.4 && this.level > 1) {
+                        this.level--;
+                        this.updateStatus('Adjusting Level', 'Optimizing for your learning pace');
+                        await this.wait(1500);
+                    }
+                }
+                
+                this.updateDisplay();
+                this.updateDifficultyIndicator();
+                this.hideFeedback();
+                
+                this.isPlaying = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('replayBtn').disabled = true;
+                
+                this.updateStatus('Ready for next sequence?', `Level ${this.level} - ${this.level + 1} steps`);
+            }
+
+            async replaySequence() {
+                if (!this.currentSequence.length) return;
+                
+                document.getElementById('replayBtn').disabled = true;
+                this.updateStatus('Replaying sequence...', 'Watch carefully again');
+                
+                await this.wait(500);
+                await this.showSequence();
+            }
+
+            resetTraining() {
+                this.level = 1;
+                this.score = 0;
+                this.streak = 0;
+                this.totalAttempts = 0;
+                this.correctSequences = 0;
+                this.currentSequence = [];
+                this.playerSequence = [];
+                this.isPlaying = false;
+                this.isShowingSequence = false;
+                
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('replayBtn').disabled = true;
+                
+                this.updateDisplay();
+                this.updateDifficultyIndicator();
+                this.hideFeedback();
+                this.hideProgressRing();
+                this.enableGrid();
+                
+                this.updateStatus('Ready to train your memory?', 'Click Start to begin your cognitive workout');
+            }
+
+            highlightCell(index, active, type = 'sequence-play') {
+                const cell = document.querySelector(`[data-index="${index}"]`);
+                if (!cell) return;
+                
+                if (active) {
+                    cell.classList.add(type);
+                } else {
+                    cell.classList.remove('sequence-play', 'active', 'correct', 'incorrect');
+                }
+            }
+
+            disableGrid() {
+                document.querySelectorAll('.grid-cell').forEach(cell => {
+                    cell.classList.add('disabled');
+                });
+            }
+
+            enableGrid() {
+                document.querySelectorAll('.grid-cell').forEach(cell => {
+                    cell.classList.remove('disabled');
+                });
+            }
+
+            showProgressRing() {
+                document.getElementById('progressRing').style.display = 'block';
+                this.updateProgressRing();
+            }
+
+            hideProgressRing() {
+                document.getElementById('progressRing').style.display = 'none';
+            }
+
+            updateProgressRing() {
+                const circle = document.getElementById('progressCircle');
+                const progress = this.playerSequence.length / this.currentSequence.length;
+                const circumference = 2 * Math.PI * 26;
+                const offset = circumference - (progress * circumference);
+                circle.style.strokeDashoffset = offset;
+            }
+
+            updateStatus(main, sub) {
+                document.getElementById('statusText').textContent = main;
+                document.getElementById('statusSubtext').textContent = sub;
+            }
+
+            showFeedback(text) {
+                document.getElementById('feedbackText').textContent = text;
+                document.getElementById('feedbackPanel').style.display = 'block';
+            }
+
+            hideFeedback() {
+                document.getElementById('feedbackPanel').style.display = 'none';
+            }
+
+            updateDisplay() {
+                document.getElementById('currentLevel').textContent = this.level;
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('streak').textContent = this.streak;
+                
+                const accuracy = this.totalAttempts > 0 ? 
+                    Math.round((this.correctSequences / this.totalAttempts) * 100) : 100;
+                document.getElementById('accuracy').textContent = accuracy + '%';
+            }
+
+            arraysEqual(a, b) {
+                return a.length === b.length && a.every((val, i) => val === b[i]);
+            }
+
+            wait(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Initialize game
+        const game = new MemoryGridGame();
+
+        // Global functions
+        function startTraining() {
+            game.startTraining();
+        }
+
+        function replaySequence() {
+            game.replaySequence();
+        }
+
+        function resetTraining() {
+            game.resetTraining();
+        }
+
+        function toggleSound() {
+            game.soundEnabled = !game.soundEnabled;
+            const toggle = document.getElementById('soundToggle');
+            toggle.textContent = game.soundEnabled ? '🔊' : '🔇';
+            
+            if (game.soundEnabled && !game.audioContext) {
+                game.initializeAudio();
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !game.isPlaying) {
+                e.preventDefault();
+                startTraining();
+            } else if (e.code === 'KeyR' && game.currentSequence.length > 0) {
+                e.preventDefault();
+                replaySequence();
+            }
+            
+            // Number keys for grid input (1-9)
+            const num = parseInt(e.key);
+            if (num >= 1 && num <= 9 && game.isPlaying && !game.isShowingSequence) {
+                game.handleCellClick(num - 1);
+            }
+        });
+
+        // Handle page visibility for audio context
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && game.audioContext) {
+                game.audioContext.suspend();
+            } else if (!document.hidden && game.audioContext && game.soundEnabled) {
+                game.audioContext.resume();
+            }
+        });
+
+        // Initialize audio on first user interaction
+        document.addEventListener('click', () => {
+            if (game.audioContext && game.audioContext.state === 'suspended') {
+                game.audioContext.resume();
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>

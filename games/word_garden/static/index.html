@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Garden</title>
+<style>
+  body { font-family: sans-serif; text-align: center; background: #f0fff4; }
+  h1 { color: #16a34a; }
+  #question { font-size: 20px; margin: 20px 0; }
+  #options { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  button { padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 8px; border: 1px solid #16a34a; background: #dcfce7; }
+  button:hover { background: #bbf7d0; }
+  #garden { margin-top: 30px; display: grid; grid-template-columns: repeat(3, 80px); grid-gap: 10px; justify-content: center; }
+  .plot { width: 80px; height: 80px; border: 2px solid #4ade80; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: #ecfccb; }
+</style>
+</head>
+<body>
+
+<h1>Word Garden 🌱</h1>
+<div id="question">Press Start to play</div>
+<div id="options"></div>
+<button id="startBtn">Start Game</button>
+
+<div id="garden"></div>
+
+<script>
+const startBtn = document.getElementById('startBtn');
+const questionDiv = document.getElementById('question');
+const optionsDiv = document.getElementById('options');
+const gardenDiv = document.getElementById('garden');
+
+let sessionId = 'player1';
+let currentQuestion = null;
+
+async function startGame() {
+  startBtn.style.display = 'none';
+  await fetchQuestion();
+  renderGarden();
+}
+
+async function fetchQuestion() {
+  const res = await fetch(`/api/start-game/${sessionId}`, { method: 'POST' });
+  const data = await res.json();
+  currentQuestion = data.question;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  if (!currentQuestion) return;
+  questionDiv.textContent = currentQuestion.q;
+  optionsDiv.innerHTML = '';
+  currentQuestion.o.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.onclick = () => submitAnswer(idx);
+    optionsDiv.appendChild(btn);
+  });
+}
+
+async function submitAnswer(index) {
+  const res = await fetch('/api/submit-answer', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ session_id: sessionId, answer_index: index })
+  });
+  const data = await res.json();
+
+  // Show feedback
+  alert(data.correct ? '✅ Correct!' : `❌ Wrong! Correct: ${data.correct_answer}`);
+
+  // Update garden
+  renderGarden(data.garden_state);
+
+  if (data.game_over) {
+    questionDiv.textContent = 'Game Over! 🌸';
+    optionsDiv.innerHTML = '';
+    startBtn.textContent = 'Restart';
+    startBtn.style.display = 'inline-block';
+    return;
+  }
+
+  currentQuestion = data.next_question;
+  renderQuestion();
+}
+
+function renderGarden(garden_state = {}) {
+  gardenDiv.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const plot = document.createElement('div');
+    plot.className = 'plot';
+    if (garden_state[i]) {
+      const plant = garden_state[i];
+      if (plant.growth_stage === 0) plot.textContent = '🌱';
+      else if (plant.growth_stage === 1) plot.textContent = '🌿';
+      else if (plant.growth_stage === 2) plot.textContent = '🌸';
+      else plot.textContent = '🌺';
+    }
+    gardenDiv.appendChild(plot);
+  }
+}
+
+startBtn.addEventListener('click', startGame);
+</script>
+</body>
+</html>
