@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Puzzle Drop — Buckets</title>
+<style>
+  body { display:flex; flex-direction:column; align-items:center; font-family:system-ui,Segoe UI,Roboto,Arial; background:#111827; color:#e6eef8; height:100vh; margin:0; }
+  header { margin:18px 0; text-align:center; }
+  h1 { margin:0; font-size:20px; color:#7dd3fc; }
+  #controls { margin:8px 0 18px 0; display:flex; gap:12px; align-items:center; }
+  button { padding:8px 14px; font-size:14px; border-radius:8px; border:none; cursor:pointer; }
+  #startBtn { background:#06b6d4; color:#042028; }
+  #restartBtn { background:#f97316; color:white; display:none; }
+  #info { font-size:13px; opacity:0.9; }
+  canvas { background:#e6eef8; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.6); }
+  #hud { margin-top:10px; display:flex; gap:20px; align-items:center; font-size:14px; }
+  #message { color:#fde68a; margin-left:8px; min-width:220px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Puzzle Drop — Buckets (match shape to bucket opening)</h1>
+  <div id="controls">
+    <button id="startBtn">Start Game</button>
+    <button id="restartBtn">Restart</button>
+    <div id="info">Use ← → to move, ↓ to drop faster. Land the shape inside the matching bucket opening.</div>
+  </div>
+</header>
+
+<canvas id="game" width="480" height="640"></canvas>
+
+<div id="hud">
+  <div id="score">Score: 0</div>
+  <div id="lives">Lives: 3</div>
+  <div id="level">Speed: 1</div>
+  <div id="message"></div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d', { alpha: false });
+
+  const startBtn = document.getElementById('startBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const scoreEl = document.getElementById('score');
+  const livesEl = document.getElementById('lives');
+  const levelEl = document.getElementById('level');
+  const messageEl = document.getElementById('message');
+
+  // Game config
+  const BUCKET_COUNT = 3;
+  const bucketShapes = ['circle', 'square', 'triangle']; // left -> right
+  const bucketWidth = Math.floor(canvas.width / BUCKET_COUNT);
+  const bucketHeight = 120;
+  const bucketTopY = canvas.height - bucketHeight;
+  const openingWidthRatio = 0.5; // opening width relative to bucketWidth
+  const openingWidth = bucketWidth * openingWidthRatio;
+
+  let isRunning = false;
+  let score = 0;
+  let lives = 3;
+  let fallSpeed = 2; // px per frame (increase to make harder)
+  let fallingPiece = null;
+  let spawnCooldown = 0;
+  let gravityMultiplier = 1;
+  let autoSpawnDelay = 10; // frames before next piece after landing
+  let frameCount = 0;
+
+  // create a new shape piece
+  function createPiece(shape = null) {
+    const shapes = ['circle', 'square', 'triangle'];
+    const s = shape || shapes[Math.floor(Math.random() * shapes.length)];
+    return {
+      shape: s,
+      size: 44,
+      x: canvas.width / 2,
+      y: 40,
+      vx: 0,
+      vy: 0
+    };
+  }
+
+  // draw the piece
+  function drawShape(p) {
+    ctx.save();
+    ctx.fillStyle = p.shape === 'circle' ? '#0284c7' : (p.shape === 'square' ? '#ef4444' : '#16a34a');
+    ctx.beginPath();
+    if (p.shape === 'circle') {
+      ctx.arc(p.x, p.y, p.size/2, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (p.shape === 'square') {
+      ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+    } else { // triangle
+      ctx.moveTo(p.x, p.y - p.size/2);
+      ctx.lineTo(p.x - p.size/2, p.y + p.size/2);
+      ctx.lineTo(p.x + p.size/2, p.y + p.size/2);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // draw U-shaped bucket with an opening centered at bucket center
+  function drawBucket(index) {
+    const bx = index * bucketWidth;
+    const center = bx + bucketWidth / 2;
+    const sideThickness = 12;
+    const wallColor = '#0f172a';
+
+    // bucket sides (left and right walls)
+    // left wall
+    ctx.fillStyle = wallColor;
+    ctx.fillRect(bx, bucketTopY, sideThickness, bucketHeight - 12);
+    // right wall
+    ctx.fillRect(bx + bucketWidth - sideThickness, bucketTopY, sideThickness, bucketHeight - 12);
+    // bottom
+    ctx.fillRect(bx, canvas.height - sideThickness, bucketWidth, sideThickness);
+
+    // draw opening shape (visual) at top-center of bucket
+    const openCenterX = center;
+    const openCenterY = bucketTopY + 24;
+
+    ctx.save();
+    ctx.translate(openCenterX, openCenterY);
+    // small translucent box to indicate opening area
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
+    const openingHalf = openingWidth / 2;
+    ctx.strokeRect(-openingHalf, -18, openingWidth, 36);
+
+    // draw the required shape icon inside opening
+    ctx.beginPath();
+    if (bucketShapes[index] === 'circle') {
+      ctx.fillStyle = '#60a5fa';
+      ctx.arc(0, 0, 12, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (bucketShapes[index] === 'square') {
+      ctx.fillStyle = '#fb7185';
+      ctx.fillRect(-12, -12, 24, 24);
+    } else {
+      ctx.fillStyle = '#86efac';
+      ctx.moveTo(0, -14);
+      ctx.lineTo(-12, 10);
+      ctx.lineTo(12, 10);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // draw all buckets
+  function drawBuckets() {
+    for (let i = 0; i < BUCKET_COUNT; i++) {
+      drawBucket(i);
+    }
+  }
+
+  // check landing when piece reaches bucket-top area
+  function checkLanding(p) {
+    const bottomY = canvas.height - (12 + 1); // bottom floor + slight margin
+    const bucketZoneY = bucketTopY + 8; // when piece enters bucket zone
+
+    // If piece's center is at/ below bucket top area, consider landing
+    if (p.y + p.size/2 >= bucketZoneY) {
+      // find bucket index by x
+      let idx = Math.floor(p.x / bucketWidth);
+      if (idx < 0) idx = 0;
+      if (idx >= BUCKET_COUNT) idx = BUCKET_COUNT - 1;
+
+      const bucketCenter = idx * bucketWidth + bucketWidth / 2;
+      const leftOpening = bucketCenter - openingWidth / 2;
+      const rightOpening = bucketCenter + openingWidth / 2;
+
+      const inOpening = (p.x >= leftOpening + 6 && p.x <= rightOpening - 6); // require slight padding
+      const matchesShape = (p.shape === bucketShapes[idx]);
+
+      // draw debug: you can remove later
+      // ctx.strokeStyle = inOpening ? 'lime' : 'red';
+      // ctx.strokeRect(leftOpening, bucketTopY, openingWidth, 36);
+
+      if (inOpening && matchesShape) {
+        return { landed: true, success: true, idx };
+      } else {
+        return { landed: true, success: false, idx };
+      }
+    }
+    return { landed: false };
+  }
+
+  // spawn next piece
+  function spawnNext() {
+    fallingPiece = createPiece();
+    // center it in the top area randomly so player must move
+    fallingPiece.x = canvas.width * (0.2 + Math.random() * 0.6);
+    fallingPiece.y = 40;
+    fallingPiece.vy = 0;
+  }
+
+  // display message
+  function showMessage(text, timeout = 1100) {
+    messageEl.textContent = text;
+    if (timeout > 0) {
+      clearTimeout(showMessage._t);
+      showMessage._t = setTimeout(() => {
+        if (!isRunning) return;
+        messageEl.textContent = '';
+      }, timeout);
+    }
+  }
+
+  // game over
+  function gameOver() {
+    isRunning = false;
+    messageEl.textContent = 'Game Over — press Restart';
+    restartBtn.style.display = 'inline-block';
+    startBtn.style.display = 'none';
+  }
+
+  // update + render loop
+  function loop() {
+    frameCount++;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // draw buckets
+    drawBuckets();
+
+    // draw falling piece
+    if (isRunning && fallingPiece) {
+      // gravity
+      fallingPiece.vy += 0.12 * gravityMultiplier;
+      fallingPiece.y += Math.min(fallingPiece.vy, 20 * gravityMultiplier);
+
+      // clamp x to canvas
+      if (fallingPiece.x < fallingPiece.size/2) fallingPiece.x = fallingPiece.size/2;
+      if (fallingPiece.x > canvas.width - fallingPiece.size/2) fallingPiece.x = canvas.width - fallingPiece.size/2;
+
+      drawShape(fallingPiece);
+
+      // check landing threshold
+      const res = checkLanding(fallingPiece);
+      if (res.landed) {
+        if (res.success) {
+          score += 1;
+          showMessage('Nice! Correct bucket 🎯', 900);
+          // increase speed every 4 points
+          if (score % 4 === 0) {
+            fallSpeed = Math.min(12, fallSpeed + 1);
+            gravityMultiplier += 0.12;
+            levelEl.textContent = `Speed: ${Math.round(gravityMultiplier * 10) / 10}`;
+          }
+        } else {
+          lives -= 1;
+          showMessage('Wrong bucket — lost a life ❌', 1000);
+          if (lives <= 0) {
+            lives = 0;
+            scoreEl.textContent = `Score: ${score}`;
+            livesEl.textContent = `Lives: ${lives}`;
+            gameOver();
+            return;
+          }
+        }
+
+        // update HUD
+        scoreEl.textContent = `Score: ${score}`;
+        livesEl.textContent = `Lives: ${lives}`;
+
+        // spawn next after a short delay
+        spawnCooldown = autoSpawnDelay;
+        // clear current piece
+        fallingPiece = null;
+      }
+    } else {
+      // spawn after cooldown
+      if (isRunning && spawnCooldown <= 0 && fallingPiece === null) {
+        spawnNext();
+      }
+      if (spawnCooldown > 0) spawnCooldown--;
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  // input handling
+  let leftHeld = false;
+  let rightHeld = false;
+  document.addEventListener('keydown', (ev) => {
+    if (!isRunning) {
+      if (ev.code === 'Enter') startGame();
+      return;
+    }
+    if (!fallingPiece) return;
+    if (ev.code === 'ArrowLeft') leftHeld = true;
+    if (ev.code === 'ArrowRight') rightHeld = true;
+    if (ev.code === 'ArrowDown') {
+      // quick drop
+      fallingPiece.y += 18;
+      fallingPiece.vy += 1.8;
+    }
+  });
+  document.addEventListener('keyup', (ev) => {
+    if (ev.code === 'ArrowLeft') leftHeld = false;
+    if (ev.code === 'ArrowRight') rightHeld = false;
+  });
+
+  // continuous movement while held (smooth)
+  function handleMovement() {
+    if (isRunning && fallingPiece) {
+      const moveSpeed = 6 + (gravityMultiplier - 1) * 2;
+      if (leftHeld) fallingPiece.x -= moveSpeed;
+      if (rightHeld) fallingPiece.x += moveSpeed;
+    }
+    requestAnimationFrame(handleMovement);
+  }
+
+  // start game
+  function startGame() {
+    isRunning = true;
+    score = 0;
+    lives = 3;
+    fallSpeed = 2;
+    gravityMultiplier = 1;
+    spawnCooldown = 0;
+    frameCount = 0;
+    fallingPiece = null;
+    scoreEl.textContent = `Score: ${score}`;
+    livesEl.textContent = `Lives: ${lives}`;
+    levelEl.textContent = `Speed: ${gravityMultiplier.toFixed(1)}`;
+    messageEl.textContent = '';
+    startBtn.style.display = 'none';
+    restartBtn.style.display = 'none';
+    spawnNext();
+  }
+
+  // restart
+  function restart() {
+    startGame();
+    restartBtn.style.display = 'none';
+  }
+
+  // wire buttons
+  startBtn.addEventListener('click', startGame);
+  restartBtn.addEventListener('click', restart);
+
+  // initial draw of buckets and loop start
+  drawBuckets();
+  loop();
+  handleMovement();
+})();
+</script>
+</body>
+</html>

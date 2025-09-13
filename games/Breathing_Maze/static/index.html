@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calm Rhythm Maze - Anxiety Relief</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        .game-container {
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+            padding: 20px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .game-board {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin: 20px auto;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .maze {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 1px;
+        }
+
+        .maze-cell {
+            transition: all 0.3s ease;
+        }
+
+        .maze-cell.path {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .maze-cell.wall {
+            background: rgba(0,0,0,0.5);
+        }
+
+        .orb {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.6);
+            transition: all 0.4s ease;
+            z-index: 10;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(79, 172, 254, 0.6); }
+            to { box-shadow: 0 0 40px rgba(79, 172, 254, 1); }
+        }
+
+        .rhythm-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .beat-indicator {
+            width: 20px;
+            height: 20px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            margin: 0 5px;
+            transition: all 0.2s ease;
+        }
+
+        .beat-indicator.active {
+            background: #4facfe;
+            transform: scale(1.5);
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.8);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .tap-area {
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.1);
+            border: 3px solid rgba(79, 172, 254, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .tap-area:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+
+        .tap-area:active {
+            transform: scale(0.95);
+            background: rgba(79, 172, 254, 0.3);
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(79, 172, 254, 0.4);
+        }
+
+        .feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.5s ease;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .feedback.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) translateY(-20px);
+        }
+
+        .feedback.success {
+            color: #4facfe;
+        }
+
+        .feedback.miss {
+            color: #ff6b6b;
+        }
+
+        .level-complete {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .level-complete.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .level-complete-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                width: 90vw;
+                height: 90vw;
+                max-width: 400px;
+                max-height: 400px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">Calm Rhythm Maze</h1>
+        <p class="subtitle">Guide the orb by tapping in rhythm</p>
+        
+        <div class="controls">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="score">0</div>
+                    <div class="stat-label">Score</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="level">1</div>
+                    <div class="stat-label">Level</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="precision">0%</div>
+                    <div class="stat-label">Precision</div>
+                </div>
+            </div>
+            
+            <button class="start-button" id="startBtn" onclick="startGame()">Start Game</button>
+            
+            <div class="tap-area" id="tapArea">
+                <div>TAP</div>
+            </div>
+        </div>
+        
+        <div class="game-board">
+            <div class="maze" id="maze"></div>
+            <div class="orb" id="orb"></div>
+            
+            <div class="rhythm-indicator">
+                <div class="beat-indicator" id="beat1"></div>
+                <div class="beat-indicator" id="beat2"></div>
+                <div class="beat-indicator" id="beat3"></div>
+                <div class="beat-indicator" id="beat4"></div>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+    
+    <div class="level-complete" id="levelComplete">
+        <div class="level-complete-content">
+            <h2>Level Complete!</h2>
+            <p>Level <span id="newLevel">2</span></p>
+            <button class="start-button" onclick="closeLevelComplete()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        class RhythmMazeGame {
+            constructor() {
+                this.sessionId = null;
+                this.isPlaying = false;
+                this.audioContext = null;
+                this.rhythmPattern = [];
+                this.patternStartTime = 0;
+                this.position = { x: 1, y: 1 };
+                this.maze = [];
+                this.score = 0;
+                this.level = 1;
+                
+                this.initAudio();
+                this.bindEvents();
+            }
+            
+            async initAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+            
+            bindEvents() {
+                const tapArea = document.getElementById('tapArea');
+                tapArea.addEventListener('click', (e) => this.handleTap(e));
+                tapArea.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.handleTap(e);
+                });
+            }
+            
+            async startGame() {
+                if (this.audioContext && this.audioContext.state === 'suspended') {
+                    await this.audioContext.resume();
+                }
+                
+                try {
+                    const response = await fetch('/api/start-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Server connection failed');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    this.sessionId = data.session_id;
+                    this.maze = data.maze;
+                    this.rhythmPattern = data.rhythm_pattern;
+                    this.patternStartTime = data.pattern_start_time;
+                    this.position = data.position;
+                    this.level = data.level;
+                    this.score = data.score;
+                    
+                    this.isPlaying = true;
+                    this.renderMaze();
+                    this.updateOrb();
+                    this.startRhythmLoop();
+                    this.updateUI();
+                    
+                    document.getElementById('startBtn').textContent = 'Playing...';
+                    
+                } catch (error) {
+                    console.error('Start game error:', error);
+                    this.showFeedback('Connection Error - Check if server is running', 'miss');
+                }
+            }
+            
+            renderMaze() {
+                const mazeElement = document.getElementById('maze');
+                mazeElement.innerHTML = '';
+                
+                this.maze.forEach((row) => {
+                    row.forEach((cell) => {
+                        const cellElement = document.createElement('div');
+                        cellElement.className = `maze-cell ${cell === 0 ? 'path' : 'wall'}`;
+                        mazeElement.appendChild(cellElement);
+                    });
+                });
+            }
+            
+            updateOrb() {
+                const orb = document.getElementById('orb');
+                const cellSize = 500 / 10;
+                const orbSize = 30;
+                
+                const x = (this.position.x * cellSize) + (cellSize - orbSize) / 2;
+                const y = (this.position.y * cellSize) + (cellSize - orbSize) / 2;
+                
+                orb.style.left = x + 'px';
+                orb.style.top = y + 'px';
+            }
+            
+            startRhythmLoop() {
+                if (!this.isPlaying) return;
+                
+                const now = Date.now();
+                const patternDuration = this.rhythmPattern.reduce((a, b) => a + b, 0);
+                const timeInPattern = (now - this.patternStartTime) % patternDuration;
+                
+                let currentBeat = 0;
+                let accumulatedTime = 0;
+                
+                for (let i = 0; i < this.rhythmPattern.length; i++) {
+                    if (timeInPattern >= accumulatedTime && timeInPattern < accumulatedTime + this.rhythmPattern[i]) {
+                        currentBeat = i;
+                        break;
+                    }
+                    accumulatedTime += this.rhythmPattern[i];
+                }
+                
+                this.updateBeatIndicators(currentBeat);
+                this.playBeatSound();
+                
+                requestAnimationFrame(() => this.startRhythmLoop());
+            }
+            
+            updateBeatIndicators(activeBeat) {
+                for (let i = 1; i <= 4; i++) {
+                    const indicator = document.getElementById(`beat${i}`);
+                    if (i - 1 === activeBeat) {
+                        indicator.classList.add('active');
+                    } else {
+                        indicator.classList.remove('active');
+                    }
+                }
+            }
+            
+            playBeatSound() {
+                if (!this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.frequency.value = 440;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, this.audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.1);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.1);
+            }
+            
+            async handleTap(event) {
+                if (!this.isPlaying || !this.sessionId) return;
+                
+                try {
+                    const response = await fetch('/api/tap', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            timestamp: Date.now(),
+                            session_id: this.sessionId
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.position = result.position;
+                        this.score = result.score;
+                        this.updateOrb();
+                        this.showFeedback(`Perfect! ${result.precision.toFixed(0)}%`, 'success');
+                        
+                        if (result.level_complete) {
+                            this.level = result.new_level;
+                            this.rhythmPattern = result.new_pattern;
+                            this.patternStartTime = result.pattern_start_time;
+                            this.showLevelComplete();
+                        }
+                    } else {
+                        this.showFeedback(`Miss: ${result.timing_difference.toFixed(0)}ms`, 'miss');
+                    }
+                    
+                    this.updateUI();
+                    
+                } catch (error) {
+                    console.error('Tap error:', error);
+                }
+            }
+            
+            showFeedback(message, type) {
+                const feedback = document.getElementById('feedback');
+                feedback.textContent = message;
+                feedback.className = `feedback ${type}`;
+                feedback.classList.add('show');
+                
+                setTimeout(() => {
+                    feedback.classList.remove('show');
+                }, 1500);
+            }
+            
+            showLevelComplete() {
+                const modal = document.getElementById('levelComplete');
+                const newLevelSpan = document.getElementById('newLevel');
+                newLevelSpan.textContent = this.level;
+                modal.classList.add('show');
+                this.isPlaying = false;
+            }
+            
+            closeLevelComplete() {
+                const modal = document.getElementById('levelComplete');
+                modal.classList.remove('show');
+                this.isPlaying = true;
+                this.startRhythmLoop();
+            }
+            
+            updateUI() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('level').textContent = this.level;
+                document.getElementById('precision').textContent = `${this.score > 0 ? Math.round(this.score / this.level) : 0}%`;
+            }
+        }
+        
+        let game = null;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new RhythmMazeGame();
+        });
+        
+        function startGame() {
+            if (game) game.startGame();
+        }
+        
+        function closeLevelComplete() {
+            if (game) game.closeLevelComplete();
+        }
+    </script>
+</body>
+</html>

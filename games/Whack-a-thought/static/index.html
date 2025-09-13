@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whack-a-Thought - Anxiety Relief Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            max-width: 800px;
+            width: 100%;
+            min-height: 500px;
+            position: relative;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .game-area {
+            position: relative;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .word-bubble {
+            position: absolute;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            user-select: none;
+            animation: float 2s ease-in-out infinite;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .word-bubble.negative {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .word-bubble.positive {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .word-bubble.neutral {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .word-bubble:hover {
+            transform: scale(1.1);
+        }
+
+        .word-bubble.clicked {
+            animation: pop 0.3s ease;
+        }
+
+        .word-bubble.wrong-click {
+            animation: shake 0.5s ease;
+            background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00c9ff, #92fe9d);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00c9ff, #92fe9d);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .game-container {
+                padding: 20px;
+            }
+            
+            .game-area {
+                height: 300px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧠 Whack-a-Thought</h1>
+        <p>An anxiety relief game that helps you identify and dismiss negative thoughts using CBT techniques</p>
+    </div>
+
+    <div class="game-container">
+        <div class="instructions">
+            <h3>📋 How to Play</h3>
+            <p><strong>Tap only the RED negative thoughts</strong> to dismiss them. Avoid clicking positive (green) or neutral (gray) words - they'll penalize you!</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="game-stats">
+            <div class="stat-item">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Negative Thoughts</div>
+                <div class="stat-value" id="negativeCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Accuracy</div>
+                <div class="stat-value" id="accuracy">100%</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Time</div>
+                <div class="stat-value" id="timer">60s</div>
+            </div>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div class="message" id="gameMessage" style="display: none;">
+                Ready to start your mindfulness journey?
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn" onclick="startGame()">Start Game</button>
+            <button class="btn btn-secondary" id="pauseBtn" onclick="pauseGame()" disabled>Pause</button>
+            <button class="btn btn-secondary" onclick="resetGame()">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        class WhackAThoughtGame {
+            constructor() {
+                this.score = 0;
+                this.negativeClicked = 0;
+                this.totalClicks = 0;
+                this.gameTime = 60;
+                this.currentTime = this.gameTime;
+                this.isPlaying = false;
+                this.isPaused = false;
+                this.words = [];
+                this.activeWords = [];
+                this.gameTimer = null;
+                this.wordSpawner = null;
+                this.difficulty = 1;
+                
+                this.gameArea = document.getElementById('gameArea');
+                this.scoreEl = document.getElementById('score');
+                this.negativeCountEl = document.getElementById('negativeCount');
+                this.accuracyEl = document.getElementById('accuracy');
+                this.timerEl = document.getElementById('timer');
+                this.progressEl = document.getElementById('progressFill');
+                this.messageEl = document.getElementById('gameMessage');
+                this.startBtn = document.getElementById('startBtn');
+                this.pauseBtn = document.getElementById('pauseBtn');
+            }
+
+            async loadWords() {
+                try {
+                    const response = await fetch('/api/words');
+                    const data = await response.json();
+                    this.words = data.words;
+                } catch (error) {
+                    console.error('Failed to load words:', error);
+                    // Fallback words if API fails
+                    this.words = [
+                        {text: "failure", type: "negative"},
+                        {text: "worthless", type: "negative"},
+                        {text: "success", type: "positive"},
+                        {text: "chair", type: "neutral"}
+                    ];
+                }
+            }
+
+            async startGame() {
+                if (this.isPlaying) return;
+                
+                await this.loadWords();
+                this.isPlaying = true;
+                this.isPaused = false;
+                this.currentTime = this.gameTime;
+                this.score = 0;
+                this.negativeClicked = 0;
+                this.totalClicks = 0;
+                this.difficulty = 1;
+                
+                this.startBtn.disabled = true;
+                this.pauseBtn.disabled = false;
+                this.hideMessage();
+                
+                this.updateDisplay();
+                this.startTimer();
+                this.startWordSpawner();
+            }
+
+            pauseGame() {
+                if (!this.isPlaying) return;
+                
+                this.isPaused = !this.isPaused;
+                this.pauseBtn.textContent = this.isPaused ? 'Resume' : 'Pause';
+                
+                if (this.isPaused) {
+                    this.showMessage('Game Paused\nClick Resume to continue');
+                } else {
+                    this.hideMessage();
+                }
+            }
+
+            resetGame() {
+                this.isPlaying = false;
+                this.isPaused = false;
+                this.clearTimers();
+                this.clearWords();
+                
+                this.score = 0;
+                this.negativeClicked = 0;
+                this.totalClicks = 0;
+                this.currentTime = this.gameTime;
+                
+                this.startBtn.disabled = false;
+                this.pauseBtn.disabled = true;
+                this.pauseBtn.textContent = 'Pause';
+                
+                this.updateDisplay();
+                this.showMessage('Ready to start your mindfulness journey?');
+            }
+
+            endGame() {
+                this.isPlaying = false;
+                this.clearTimers();
+                this.clearWords();
+                
+                this.startBtn.disabled = false;
+                this.pauseBtn.disabled = true;
+                
+                const accuracy = this.totalClicks > 0 ? Math.round((this.negativeClicked / this.totalClicks) * 100) : 100;
+                
+                let message = `Game Over!\n\nScore: ${this.score}\n`;
+                message += `Negative thoughts dismissed: ${this.negativeClicked}\n`;
+                message += `Accuracy: ${accuracy}%\n\n`;
+                
+                if (accuracy >= 80 && this.negativeClicked >= 5) {
+                    message += "🎉 Excellent mindfulness! You're great at identifying negative thoughts!";
+                } else if (accuracy >= 60) {
+                    message += "👍 Good job! Keep practicing to improve your cognitive awareness.";
+                } else {
+                    message += "🤔 Remember: only click the red negative thoughts. You've got this!";
+                }
+                
+                this.showMessage(message);
+                this.getEncouragement();
+            }
+
+            async getEncouragement() {
+                try {
+                    const response = await fetch('/api/encouragement');
+                    const data = await response.json();
+                    setTimeout(() => {
+                        this.showMessage(data.message);
+                    }, 3000);
+                } catch (error) {
+                    console.error('Failed to get encouragement:', error);
+                }
+            }
+
+            startTimer() {
+                this.gameTimer = setInterval(() => {
+                    if (this.isPaused) return;
+                    
+                    this.currentTime--;
+                    this.updateDisplay();
+                    
+                    if (this.currentTime <= 0) {
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+
+            startWordSpawner() {
+                const spawnWord = () => {
+                    if (!this.isPlaying || this.isPaused) return;
+                    
+                    if (this.activeWords.length < 4 && this.words.length > 0) {
+                        const word = this.words[Math.floor(Math.random() * this.words.length)];
+                        this.createWordBubble(word);
+                    }
+                };
+                
+                spawnWord(); // Initial word
+                this.wordSpawner = setInterval(spawnWord, 1500 - (this.difficulty * 100));
+                
+                // Increase difficulty over time
+                setInterval(() => {
+                    if (this.difficulty < 5) this.difficulty++;
+                }, 10000);
+            }
+
+            createWordBubble(word) {
+                const bubble = document.createElement('div');
+                bubble.className = `word-bubble ${word.type}`;
+                bubble.textContent = word.text;
+                
+                // Random position
+                const maxX = this.gameArea.clientWidth - 150;
+                const maxY = this.gameArea.clientHeight - 50;
+                bubble.style.left = Math.random() * maxX + 'px';
+                bubble.style.top = Math.random() * maxY + 'px';
+                
+                // Click handler
+                bubble.addEventListener('click', () => this.handleWordClick(word, bubble));
+                
+                this.gameArea.appendChild(bubble);
+                this.activeWords.push(bubble);
+                
+                // Auto-remove after 3-5 seconds
+                setTimeout(() => {
+                    if (bubble.parentNode) {
+                        this.removeWord(bubble);
+                    }
+                }, 3000 + Math.random() * 2000);
+            }
+
+            handleWordClick(word, bubble) {
+                if (!this.isPlaying || this.isPaused) return;
+                
+                this.totalClicks++;
+                
+                if (word.type === 'negative') {
+                    // Correct click
+                    this.score += 10;
+                    this.negativeClicked++;
+                    bubble.classList.add('clicked');
+                    this.createFloatingText('+10', bubble, 'green');
+                } else {
+                    // Wrong click - penalty
+                    this.score = Math.max(0, this.score - 5);
+                    bubble.classList.add('wrong-click');
+                    this.createFloatingText('-5', bubble, 'red');
+                }
+                
+                setTimeout(() => this.removeWord(bubble), 300);
+                this.updateDisplay();
+            }
+
+            createFloatingText(text, bubble, color) {
+                const floating = document.createElement('div');
+                floating.textContent = text;
+                floating.style.cssText = `
+                    position: absolute;
+                    left: ${bubble.offsetLeft + 20}px;
+                    top: ${bubble.offsetTop - 20}px;
+                    color: ${color};
+                    font-weight: bold;
+                    font-size: 1.2em;
+                    z-index: 1000;
+                    pointer-events: none;
+                    animation: floatUp 1s ease forwards;
+                `;
+                
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes floatUp {
+                        to { transform: translateY(-30px); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                this.gameArea.appendChild(floating);
+                setTimeout(() => floating.remove(), 1000);
+            }
+
+            removeWord(bubble) {
+                const index = this.activeWords.indexOf(bubble);
+                if (index > -1) {
+                    this.activeWords.splice(index, 1);
+                }
+                if (bubble.parentNode) {
+                    bubble.remove();
+                }
+            }
+
+            clearWords() {
+                this.activeWords.forEach(word => word.remove());
+                this.activeWords = [];
+            }
+
+            clearTimers() {
+                if (this.gameTimer) clearInterval(this.gameTimer);
+                if (this.wordSpawner) clearInterval(this.wordSpawner);
+            }
+
+            updateDisplay() {
+                this.scoreEl.textContent = this.score;
+                this.negativeCountEl.textContent = this.negativeClicked;
+                this.timerEl.textContent = this.currentTime + 's';
+                
+                const accuracy = this.totalClicks > 0 ? Math.round((this.negativeClicked / this.totalClicks) * 100) : 100;
+                this.accuracyEl.textContent = accuracy + '%';
+                
+                const progress = ((this.gameTime - this.currentTime) / this.gameTime) * 100;
+                this.progressEl.style.width = progress + '%';
+            }
+
+            showMessage(text) {
+                this.messageEl.textContent = text;
+                this.messageEl.style.display = 'block';
+            }
+
+            hideMessage() {
+                this.messageEl.style.display = 'none';
+            }
+        }
+
+        // Initialize game
+        const game = new WhackAThoughtGame();
+
+        // Global functions for buttons
+        function startGame() {
+            game.startGame();
+        }
+
+        function pauseGame() {
+            game.pauseGame();
+        }
+
+        function resetGame() {
+            game.resetGame();
+        }
+
+        // Show initial message
+        game.showMessage('Ready to start your mindfulness journey?');
+    </script>
+</body>
+</html>

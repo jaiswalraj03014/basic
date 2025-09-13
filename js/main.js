@@ -2,6 +2,7 @@
 // SENOVA AI - INTERACTIVE FRONTEND
 // =================================
 
+
 // Global Variables
 let particleAnimation;
 let isHeroChartInitialized = false;
